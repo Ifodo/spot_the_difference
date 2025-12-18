@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iGetHouse – Spot the Difference Game</title>
+    <meta
+      name="description"
+      content="iGetHouse.ng spot the difference game – find the differences in real estate scenes and test your property eye."
+    />
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- HEADER / BRAND -->
+      <header class="app-header">
+        <div class="brand">
+          <img src="assets/logo.jpg" alt="iGetHouse logo" class="brand-logo-large" />
+        </div>
+        <button id="btn-open-leaderboard" class="ghost-button">
+          Local Leaderboard
+        </button>
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main class="app-main">
+        <!-- HOME / LEVEL SELECT SCREEN -->
+        <section id="screen-home" class="screen screen-active">
+          <div class="card card-home">
+            <h2 class="card-title">Choose Your Challenge</h2>
+            <p class="card-subtitle">
+              Spot the difference in beautiful iGetHouse property scenes.
+            </p>
+
+            <div class="difficulty-grid">
+              <button
+                class="difficulty-card"
+                data-difficulty="easy"
+                aria-label="Play Easy mode"
+              >
+                <h3>Easy</h3>
+                <p>2–3 obvious missing items. Relaxed timer.</p>
+              </button>
+              <button
+                class="difficulty-card"
+                data-difficulty="medium"
+                aria-label="Play Medium mode"
+              >
+                <h3>Medium</h3>
+                <p>4–6 subtle items. Standard timer.</p>
+              </button>
+              <button
+                class="difficulty-card"
+                data-difficulty="hard"
+                aria-label="Play Hard mode"
+              >
+                <h3>Hard</h3>
+                <p>7–10 tiny details. Short timer.</p>
+              </button>
+            </div>
+
+            <div class="home-footer">
+              <p class="hint-text">
+                Progress and high scores are stored locally in your browser.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- CATEGORY SELECT SCREEN -->
+        <section id="screen-category" class="screen">
+          <div class="card">
+            <button class="back-button" data-target="home">&larr; Back</button>
+            <h2 class="card-title">
+              Pick a Scene Category
+              <span id="category-selected-difficulty" class="pill"></span>
+            </h2>
+            <p class="card-subtitle">
+              Each category uses real-estate imagery and tailored missing items.
+            </p>
+
+            <div id="category-grid" class="category-grid">
+              <!-- Filled by ui.js from level metadata -->
+            </div>
+          </div>
+        </section>
+
+        <!-- GAMEPLAY SCREEN -->
+        <section id="screen-game" class="screen">
+          <div class="card card-game">
+            <div class="game-header-row">
+              <button class="back-button" data-target="category">
+                &larr; Categories
+              </button>
+              <div class="game-meta">
+                <span id="game-difficulty-pill" class="pill"></span>
+                <span id="game-category-pill" class="pill pill-soft"></span>
+              </div>
+            </div>
+
+            <div class="game-status-bar">
+              <div class="status-item">
+                <span class="status-label">Timer</span>
+                <span id="game-timer" class="status-value">00:00</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Score</span>
+                <span id="game-score" class="status-value">0</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Items left</span>
+                <span id="game-items-left" class="status-value">0</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Hints</span>
+                <span id="game-hints-left" class="status-value">0</span>
+              </div>
+            </div>
+
+            <div class="game-board-wrapper">
+              <div class="game-image-row">
+                <!-- Left: original, complete scene -->
+                <div class="game-image-panel">
+                  <div class="game-image-label">Original</div>
+                  <div class="game-image-layer">
+                    <img
+                      id="game-base-image"
+                      class="game-image"
+                      src=""
+                      alt="Complete property scene"
+                    />
+                  </div>
+                </div>
+
+                <!-- Right: interactive, difference scene -->
+                <div class="game-image-panel game-image-panel-interactive">
+                  <div class="game-image-label">Spot the difference</div>
+                  <div class="game-image-layer">
+                    <img
+                      id="game-altered-image"
+                      class="game-image"
+                      src=""
+                      alt="Scene with differences – spot the changes"
+                    />
+
+                    <!-- Clickable overlay for hit detection -->
+                    <div id="game-click-layer" class="game-click-layer"></div>
+
+                    <!-- Hint highlight overlay -->
+                    <div
+                      id="game-hint-overlay"
+                      class="game-hint-overlay"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="game-actions">
+              <button id="btn-hint" class="primary-button">
+                Use Hint
+              </button>
+              <button id="btn-restart-level" class="ghost-button">
+                Restart Level
+              </button>
+              <!-- Debug button hidden for production -->
+              <button id="btn-debug-mode" class="ghost-button" style="display: none; background: #FFA726; color: white;">
+                🎯 Debug Mode: OFF
+              </button>
+            </div>
+
+            <!-- Debug coordinate display -->
+            <div id="debug-panel" class="debug-panel" style="display: none;">
+              <h3>🎯 Debug Mode - Click to Capture Coordinates</h3>
+              <p style="margin-bottom: 10px;">Click on the RIGHT image to record exact hit zones. Click "Copy Coordinates" when done.</p>
+              <div id="debug-coords-list" style="margin-bottom: 10px; min-height: 50px; background: #f5f5f5; padding: 10px; border-radius: 4px;">
+                No clicks recorded yet...
+              </div>
+              <button id="btn-debug-clear" class="ghost-button" style="margin-right: 10px;">Clear Clicks</button>
+              <button id="btn-debug-copy" class="primary-button">Copy Coordinates</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- END GAME SUMMARY SCREEN -->
+        <section id="screen-summary" class="screen">
+          <div class="card card-summary">
+            <h2 class="card-title">Round Summary</h2>
+            <p class="card-subtitle">
+              Here's how you did in this iGetHouse scene.
+            </p>
+
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Final Score</span>
+                <span id="summary-score" class="summary-value">0</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Time Taken</span>
+                <span id="summary-time" class="summary-value">00:00</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Accuracy</span>
+                <span id="summary-accuracy" class="summary-value">0%</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Best for This Level</span>
+                <span id="summary-best-score" class="summary-value">0</span>
+              </div>
+            </div>
+
+            <div class="summary-actions">
+              <button id="btn-play-again" class="primary-button">
+                Play Again
+              </button>
+              <button id="btn-summary-home" class="ghost-button">
+                Back to Home
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- LOCAL LEADERBOARD SCREEN -->
+        <section id="screen-leaderboard" class="screen">
+          <div class="card card-leaderboard">
+            <button class="back-button" data-target="home">&larr; Home</button>
+            <h2 class="card-title">Local Leaderboard</h2>
+            <p class="card-subtitle">
+              Best scores stored locally on this device only.
+            </p>
+
+            <div class="leaderboard-table-wrapper">
+              <table class="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Level</th>
+                    <th>Difficulty</th>
+                    <th>Score</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                  <!-- Filled by storage.js/ui.js -->
+                </tbody>
+              </table>
+            </div>
+            <div class="leaderboard-actions">
+              <button id="btn-clear-leaderboard" class="ghost-button danger">
+                Clear Local Data
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        <span>&copy; <span id="footer-year"></span> iGetHouse.ng</span>
+        <span class="footer-divider">•</span>
+        <span>Built as a local-only web game experience.</span>
+      </footer>
+    </div>
+
+    <script src="js/levels.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+  </body>
+  </html>
+
+

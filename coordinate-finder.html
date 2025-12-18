@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coordinate Finder - Click to get exact coordinates</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #faf9f6;
+      padding: 20px;
+    }
+    h1 {
+      color: #025940;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    .instructions {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 2px solid #025940;
+    }
+    .instructions p {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .panel {
+      flex: 1;
+      min-width: 400px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .panel-title {
+      background: #025940;
+      color: white;
+      padding: 10px 15px;
+      font-weight: 600;
+    }
+    .image-wrapper {
+      position: relative;
+      width: 100%;
+      cursor: crosshair;
+    }
+    .image-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .crosshair {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 2px solid #FFA726;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      display: none;
+      box-shadow: 0 0 0 2px rgba(255, 167, 38, 0.3);
+    }
+    .crosshair::before,
+    .crosshair::after {
+      content: '';
+      position: absolute;
+      background: #FFA726;
+    }
+    .crosshair::before {
+      width: 2px;
+      height: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .crosshair::after {
+      height: 2px;
+      width: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .coordinates {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border: 2px solid #025940;
+    }
+    .coordinates h2 {
+      color: #025940;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+    .coord-item {
+      background: #f5f5f5;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      border-left: 4px solid #FFA726;
+    }
+    .coord-label {
+      font-weight: bold;
+      color: #025940;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .coord-value {
+      color: #333;
+      font-size: 14px;
+    }
+    button {
+      background: #025940;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #037052;
+    }
+    .click-count {
+      color: #FFA726;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Coordinate Finder Tool</h1>
+  
+  <div class="instructions">
+    <p><strong>Instructions:</strong></p>
+    <p>1. Click on the <strong>RIGHT image</strong> exactly where each difference is located.</p>
+    <p>2. Click on: <strong>(a) the floor plant</strong>, <strong>(b) the plant reflection in the circular mirror</strong>, and <strong>(c) the lit lamp</strong>.</p>
+    <p>3. Copy the coordinates shown below and send them to me.</p>
+  </div>
+
+  <div class="container">
+    <div class="panel">
+      <div class="panel-title">Original (1.jpg)</div>
+      <div class="image-wrapper">
+        <img src="assets/images/1.jpg" alt="Original">
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Difference (2.jpg) - CLICK HERE</div>
+      <div class="image-wrapper" id="clickable">
+        <img src="assets/images/2.jpg" alt="Difference" id="target-img">
+        <div class="crosshair" id="crosshair"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="coordinates">
+    <h2>📍 Click Coordinates</h2>
+    <div id="coords-list">
+      <p style="color: #666;">Click on the right image to capture coordinates...</p>
+    </div>
+    <p class="click-count" id="click-count">Clicks recorded: 0</p>
+    <button onclick="clearClicks()">Clear All</button>
+    <button onclick="copyCoords()">Copy Coordinates</button>
+  </div>
+
+  <script>
+    let clicks = [];
+    const clickable = document.getElementById('clickable');
+    const targetImg = document.getElementById('target-img');
+    const coordsList = document.getElementById('coords-list');
+    const clickCount = document.getElementById('click-count');
+    const crosshair = document.getElementById('crosshair');
+
+    clickable.addEventListener('click', (e) => {
+      const rect = targetImg.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const xPercent = (x / rect.width) * 100;
+      const yPercent = (y / rect.height) * 100;
+
+      // Show crosshair
+      crosshair.style.left = x + 'px';
+      crosshair.style.top = y + 'px';
+      crosshair.style.display = 'block';
+
+      setTimeout(() => {
+        crosshair.style.display = 'none';
+      }, 1000);
+
+      clicks.push({
+        x: xPercent.toFixed(2),
+        y: yPercent.toFixed(2),
+        pixelX: Math.round(x),
+        pixelY: Math.round(y)
+      });
+
+      updateDisplay();
+    });
+
+    function updateDisplay() {
+      if (clicks.length === 0) {
+        coordsList.innerHTML = '<p style="color: #666;">Click on the right image to capture coordinates...</p>';
+        clickCount.textContent = 'Clicks recorded: 0';
+        return;
+      }
+
+      const labels = ['Floor Plant', 'Mirror Reflection', 'Lit Lamp'];
+      coordsList.innerHTML = clicks.map((click, idx) => `
+        <div class="coord-item">
+          <span class="coord-label">${idx + 1}. ${labels[idx] || 'Click ' + (idx + 1)}</span>
+          <span class="coord-value">x: ${click.x}%, y: ${click.y}% (radius: 4)</span>
+        </div>
+      `).join('');
+
+      clickCount.textContent = `Clicks recorded: ${clicks.length}`;
+    }
+
+    function clearClicks() {
+      clicks = [];
+      updateDisplay();
+    }
+
+    function copyCoords() {
+      if (clicks.length === 0) {
+        alert('No coordinates to copy!');
+        return;
+      }
+
+      const text = clicks.map((click, idx) => {
+        const labels = ['floor-plant', 'mirror-plant-right', 'lit-lamp'];
+        return `${labels[idx] || 'item' + idx}: x: ${click.x}, y: ${click.y}, radius: 4`;
+      }).join('\n');
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Coordinates copied to clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>
+

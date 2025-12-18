@@ -1,0 +1,7 @@
+- deep green: #025940
+- teracotta: #E2725B
+- joyful orange: #FFA726
+- sand white: #FAF9F6
+- slate gray: #5E6666
+
+The main theme color is the deep green.
