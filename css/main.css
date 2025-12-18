@@ -377,8 +377,8 @@ body {
 .game-image-row {
   display: flex;
   flex-direction: row;
-  gap: 1px; /* Seam between the two panels */
-  background: #000;
+  gap: 20px; /* Spacing between the two panels */
+  background: transparent;
 }
 
 .game-image-panel {
