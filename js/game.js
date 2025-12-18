@@ -262,7 +262,12 @@ function endLevel(completedAllItems) {
     timeFormatted: igH_formatTime(timeTaken),
   });
 
-  igH_showScreen(SCREENS.SUMMARY);
+  // Show iGetHouse modal if user completed all items
+  if (completedAllItems) {
+    igH_showIGetHouseModal();
+  } else {
+    igH_showScreen(SCREENS.SUMMARY);
+  }
 }
 
 window.addEventListener("beforeunload", () => {
@@ -325,15 +330,34 @@ function igH_copyDebugCoords() {
   });
 }
 
-// Wire up debug mode buttons on page load
+// === IGETHOUSE MODAL FUNCTIONS ===
+function igH_showIGetHouseModal() {
+  const modal = document.getElementById("igethouse-modal");
+  if (modal) {
+    modal.style.display = "flex";
+  }
+}
+
+function igH_closeIGetHouseModal() {
+  const modal = document.getElementById("igethouse-modal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+  // Show summary screen after closing modal
+  igH_showScreen(SCREENS.SUMMARY);
+}
+
+// Wire up debug mode buttons and modal on page load
 document.addEventListener("DOMContentLoaded", () => {
   const debugBtn = document.getElementById("btn-debug-mode");
   const debugClearBtn = document.getElementById("btn-debug-clear");
   const debugCopyBtn = document.getElementById("btn-debug-copy");
+  const closeModalBtn = document.getElementById("btn-close-modal");
   
   if (debugBtn) debugBtn.onclick = igH_toggleDebugMode;
   if (debugClearBtn) debugClearBtn.onclick = igH_clearDebugClicks;
   if (debugCopyBtn) debugCopyBtn.onclick = igH_copyDebugCoords;
+  if (closeModalBtn) closeModalBtn.onclick = igH_closeIGetHouseModal;
 });
 
 
